@@ -9,4 +9,7 @@ end
 initial begin
     $display("version 5 ");
 end
+initial begin
+    $display("version 6");
+end
 endmodule 
