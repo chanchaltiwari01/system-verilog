@@ -18,4 +18,7 @@ end
 initial begin
     $display("inhance branch  ");
 end
+initial begin
+    $display("inhance branch push   ");
+end
 endmodule 
