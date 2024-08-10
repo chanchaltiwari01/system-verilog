@@ -6,4 +6,8 @@ end
 initial begin
     $display("first change ");
 end
+initial begin
+    $display("version 5 ");
+end
+
 endmodule 
