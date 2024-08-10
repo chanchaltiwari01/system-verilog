@@ -15,10 +15,4 @@ end
 initial begin
     $display("inhance ");
 end
-initial begin
-    $display("inhance branch  ");
-end
-initial begin
-    $display("inhance branch push 5  ");
-end
 endmodule 
