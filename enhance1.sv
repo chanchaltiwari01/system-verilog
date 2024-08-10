@@ -15,4 +15,7 @@ end
 initial begin
     $display("inhance ");
 end
+initial begin
+    $monitor("marge branch");
+end
 endmodule 
