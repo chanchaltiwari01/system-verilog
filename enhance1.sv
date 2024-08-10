@@ -15,4 +15,7 @@ end
 initial begin
     $display("inhance ");
 end
+initial begin
+    $display("inhance branch  ");
+end
 endmodule 
