@@ -16,6 +16,9 @@ initial begin
     $display("inhance ");
 end
 initial begin
-    $monitor("marge branch");
+    $display("inhance branch  ");
+end
+initial begin
+    $display("inhance branch push 6  ");
 end
 endmodule 
