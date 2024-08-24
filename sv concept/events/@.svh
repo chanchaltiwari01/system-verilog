@@ -73,3 +73,73 @@ module tb;
     $display ("[%0t] Thread3: received event_a trigger", $time);
   end
 endmodule
+//////////////////////////////////////////////////////////////////////////////////////////
+module test_event2;
+int  count ;
+event myevent;
+
+initial begin
+-> myevent ;
+#10 -> myevent ;
+end 
+
+always@(myevent ) begin
+count =count+1;
+$display(count);
+end 
+endmodule 
+
+
+//ex3 
+module test_event3;
+int count ;
+event myevent ;
+initial begin
+$monitor(count);
+-> myevent;
+#5 -> myevent;
+@(myevent) // while using @ waiting should start before event is triggere 
+count+=1; // count =0;
+end 
+endmodule  
+
+ex4 
+
+module test_event4;
+int count ;
+event myevent ;
+initial begin
+$monitor(count); // @ waiting for event but event is never triggered 
+@(myevent)
+-> myevent;
+#5 -> myevent;
+count+=1; // count =0;
+end 
+endmodule 
+
+//ex5
+module test_event5;
+int count ;
+event myevent ;
+initial begin
+$monitor(count);
+->> myevent; // NBA region waiting start before triggering 
+@(myevent) 
+count+=1; // count =1;
+end 
+endmodule  
+
+//ex6
+module test_event6;
+int count ;
+event myevent ;
+initial begin
+fork
+$monitor(count); 
+@(myevent)
+-> myevent;
+#5 -> myevent;
+count+=1; // count =1;
+join
+end 
+endmodule
