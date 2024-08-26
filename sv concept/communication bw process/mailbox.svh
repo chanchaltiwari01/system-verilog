@@ -1,3 +1,32 @@
+module mailbox_example();
+  mailbox mb = new(3);
+  
+  task process_A();
+    int value = 5;
+    string name = "STRING";
+    mb.put(value);
+    $display("Put data = %0d", value);
+    mb.put("STRING");
+    $display("Put data = %s", name);
+  endtask
+
+  task process_B();
+    int value;
+    string name;
+    mb.get(value);
+    $display("Retrieved data = %0d", value);
+    mb.get(name);
+    $display("Retrieved data = %s", name);
+  endtask
+  
+  initial begin
+    fork
+      process_A();
+      process_B();
+    join
+  end
+endmodule
+//////////////////////////////////////////////////////////
 module generic_unbounded;
   mailbox mb; // typeless mailbox
   string s;
@@ -43,12 +72,12 @@ module generic_unbounded;
     #3 mb.get(s);
     #3 mb.get(i);
     //5       
-//     #2 void'(mb.try_get(i));
-//     // 3
-//     #2 void'(mb.try_get(s));
+    #2 void'(mb.try_get(i));
+    // 3
+    #2 void'(mb.try_get(s));
   endtask
 endmodule
-
+//////////////////////////////////////
 //////////////// generic mailbox/////////////////////////////
 module top;
   mailbox mbx = new(2); // bounded 
@@ -68,9 +97,65 @@ module top;
     end 
   end 
 endmodule
+//////////////////////////////////////////////////
+module mailbox_example();
+  mailbox mb = new();
+  
+  task process_A();
+    int value;
+    repeat(10) begin
+      value = $urandom_range(1, 50);
+      mb.put(value);
+      $display("Put data = %0d", value);
+    end
+    $display("----------------------");
+  endtask
 
-/////////////////////PARAMETERIZED mailbox //////////////////
+  task process_B();
+    int value;
+    repeat(10) begin
+      mb.get(value);
+      $display("Retrieved data = %0d", value);
+    end
+  endtask
+  
+  initial begin
+    fork
+      process_A();
+      process_B();
+    join
+  end
+endmodule
+/////////////////////////////////////////////////////////////
+///////////////////PARAMETERIZED mailbox //////////////////
+module mailbox_example();
+  mailbox #(string) mb = new(3);
+  
+  task process_A();
+    string name = "Alex";
+    mb.put(name);
+    $display("Put data = %s", name);
+    name = "Robin";
+    mb.put(name);
+    $display("Put data = %s", name);
+  endtask
 
+  task process_B();
+    string name;
+    mb.get(name);
+    $display("Retrieved data = %s", name);
+    mb.get(name);
+    $display("Retrieved data = %s", name);
+  endtask
+  
+  initial begin
+    fork
+      process_A();
+      process_B();
+    join
+  end
+endmodule
+/////////////////////////////////////////////////////////
 typedef mailbox #(string ) smb;
 
 class send;
@@ -82,9 +167,8 @@ class send;
        //string s = { "name", i };
       name.put(s);
       #1 $display("[%0t] put: put %s",$time,s);
-                  end 
-                  
-       endtask
+    end
+  endtask
 endclass
 
                   
@@ -118,8 +202,8 @@ module tb;
     join
   end 
 endmodule 
-/////////////////// or you can write this ///////////////////
 
+///// or we can write like this /////////////////
 
 class send;
   mailbox #(string) name;
@@ -165,8 +249,90 @@ module tb;
   end
 endmodule
 
-//////////////////////////////////////////////////////////////////////
+//////////////////////////try_get and try_put method////////////////////////
+module mailbox_example();
+  mailbox mb = new(3);
+  
+  task process_A();
+    int value;
+    repeat(5) begin
+      value = $urandom_range(1, 50);
+      if(mb.try_put(value))
+        $display("successfully try_put data = %0d", value);
+      else begin
+        $display("failed while try_put data = %0d", value);
+        $display("Number of messages in the mailbox = %0d", mb.num());
+      end
+    end
+    $display("---------------------------------------");
+  endtask
 
+  task process_B();
+    int value;
+    repeat(5) begin
+      if(mb.try_get(value))
+        $display("Successfully retrieved try_get data = %0d", value);
+      else begin
+        $display("Failed in try_get data");
+        $display("Number of messages in the mailbox = %0d", mb.num());
+      end
+    end
+  endtask
+  
+  initial begin
+    fork
+      process_A();
+      process_B();
+    join
+  end
+endmodule
+/////////////////////////////////////////////////////////
+//////////////////////////peek and try_peek /////////////////////
+module mailbox_example();
+  mailbox mb = new(3);
+  
+  task process_A();
+    int value;
+    repeat(3) begin
+      value = $urandom_range(1, 50);
+      mb.put(value);
+      $display("put data = %0d", value);
+    end
+    $display("----------------------------------");
+  endtask
+
+  task process_B();
+    int value;
+    mb.peek(value); // message is not removed
+    $display("peek data = %0d", value);
+    mb.peek(value); // message is not removed
+    $display("peek data = %0d", value);
+    if(mb.try_peek(value))
+      $display("Successful try_peek data = %0d", value);
+    else begin
+      $display("Failed in try_peek");
+    end
+    $display("----------------------------------");
+    repeat(3) begin
+      mb.get(value);
+      $display("get data = %0d", value);
+    end
+   $display("----------------------------------");
+   if(mb.try_peek(value))
+      $display("Successful try_peek data = %0d", value);
+    else begin
+      $display("Failed in try_peek");
+    end
+  endtask
+  
+  initial begin
+    fork
+      process_A();
+      process_B();
+    join
+  end
+endmodule
+/////////////////////////////////////////////////
 module top;
   mailbox #(int) mb; 
   
@@ -182,8 +348,8 @@ module top;
     
   end 
   task gen_data;
-   
-   mb.put(1);
+    
+    #0 mb.put(1);
     #3 mb.put(2);
     #3 mb.put(3);
     #3 mb.put(4);
@@ -194,8 +360,8 @@ module top;
   endtask 
   
   task rec_data;
-    #1 mb.get(i);
-      #3 mb.get(i); 
+     #1 mb.get(i);
+     #3 mb.get(i); 
      #3 mb.get(i);
      #3 mb.get(i);
      #3 mb.get(i);
@@ -204,4 +370,3 @@ module top;
      #3 mb.get(i);
   endtask 
 endmodule 
-    
