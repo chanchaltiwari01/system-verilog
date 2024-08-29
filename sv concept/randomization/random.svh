@@ -75,35 +75,3 @@ module test;
     end 
   end
 endmodule 
-      
-//////////RANDOMIZE() FUNCTION //////////////////////////
-
-module test;
-  bit[3:0] num1,num2;
-  
-   initial begin
-     repeat(20) begin
-       if(randomize(num1,num2))
-       $display("randomizaion is successful ..... num=%0d, num=%0d",num1,num2);
-       else 
-         $display("randomization is fail");
-       #2;
-     end 
-   end
-endmodule 
-
-///////////randomize function with constraint ///////////////////////
-
-module test;
-  integer num;
-  
- initial begin
-   repeat(20) begin
-     if(randomize(num) with {num >10 ; num<20 ;})
-       $display("randomization successful ..... num=%0d",num);
-    else
-      $display("randomization is fail ..........");
-   #2;
-   end
- end
-endmodule 
