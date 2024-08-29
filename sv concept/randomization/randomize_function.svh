@@ -63,3 +63,31 @@ module test;
    end
  end
 endmodule 
+//////////////////////pre and post randomize function ////////////////////////////////////////////////
+class packet ;
+  rand bit [3:0] data ;
+  
+  function void pre_randomize();
+    $display("pre_randomize : data=%0d",data);
+  endfunction 
+  
+  function void post_randomize();
+    $display("post_randomize: data=%0d",data);
+  endfunction
+  
+endclass
+
+module test ;
+  
+  packet pkt ;
+  
+  initial begin
+    pkt = new();
+    repeat(5) begin
+      pkt.randomize();
+      #1;
+    end 
+  end
+endmodule 
+      
+    
