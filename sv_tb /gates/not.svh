@@ -72,6 +72,7 @@ class monitor ;
 
   task run();
     repeat(5) begin
+      #1;
       tr = new();
       tr.a = vif.a ;
       tr.y = vif.y ;
@@ -141,7 +142,7 @@ program test ( intf intf_p );
 endprogram 
 //////////////////////////////////// top module  ///////////////////////////////////
 module top ;
-  inft intf_p();
+  intf intf_p();
   test t0(intf_p);
 
   not_gate dut(.a(intf_p.a),.y(intf_p.y));
@@ -151,6 +152,3 @@ module top ;
     $dumpvars(1);
   end 
 endmodule 
-
-        
-
