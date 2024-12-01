@@ -42,3 +42,38 @@ module testbench;
     end
 endmodule
 /////////////////////////////////////////////////////////////////////////////////////////////////
+class c1;
+ rand bit [7:0] x ;
+  bit clk = 1'b0;;
+  
+  covergroup cv (input int arg ) @(posedge clk );
+    option.at_least = arg;
+    coverpoint x ;
+  endgroup
+  
+  function new(int p1) ;
+    cv = new(p1);
+  endfunction 
+  
+endclass 
+
+module tb ;
+   c1 obj ;
+  
+  
+  initial begin
+     obj = new(4);
+    repeat(20)
+      begin
+        obj.randomize();
+        obj.cv.sample();
+        $display("value of x =%0d  ", obj.x);
+        @(posedge obj.clk) ;
+      end 
+    $display("#### Functional coverage = %.2f%% ###",obj.cv.get_coverage());
+    #10 $stop ;
+  end 
+  
+  always #5 obj.clk = ~obj.clk ;
+  
+endmodule 
