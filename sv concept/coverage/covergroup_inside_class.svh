@@ -77,3 +77,50 @@ module tb ;
   always #5 obj.clk = ~obj.clk ;
   
 endmodule 
+/////////////////////////////////////////////////////////////////////////////////
+class define_double_coverage;
+    // Randomized members
+    rand bit [3:0] m_x;
+    rand bit m_z;
+    randc bit m_e;
+    bit clk = 1'b0;
+
+    // Covergroups
+    covergroup cv1 @(posedge clk); 
+        coverpoint m_x; 
+    endgroup
+
+  covergroup cv2 @(m_e); 
+        coverpoint m_z; 
+    endgroup
+
+    // Constructor
+    function new();
+        cv1 = new();
+        cv2 = new();
+    endfunction
+endclass
+
+module test;
+    // Declare an instance of the class
+    define_double_coverage ddc;
+
+    initial begin
+        // Instantiate the class
+        ddc = new();
+
+        // Repeat block to generate random values and sample covergroups
+        repeat (10) begin
+            ddc.randomize();
+            ddc.cv1.sample(); // Explicit sampling for cv1
+            ddc.cv2.sample(); // Explicit sampling for cv2
+            @(posedge ddc.clk);
+        end
+
+        $finish; // End simulation after the loop
+    end
+
+    // Generate a clock
+    always #5 ddc.clk = ~ddc.clk;
+  
+endmodule
